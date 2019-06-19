@@ -1,5 +1,5 @@
 Sub rangeToMarkDown()
-    
+
     Dim cell As Range
     Dim selectedRange As Range
 
@@ -17,9 +17,9 @@ Sub rangeToMarkDown()
     '///
     '/// init lengths of columns
     '///
-    For i = 0 To totalColumns
-        columnWidth(i) = 0
-    Next i
+    For I = 0 To totalColumns
+        columnWidth(I) = 0
+    Next I
 
     '///
     '/// go through range to calculate maximum lengths of each column
@@ -62,8 +62,22 @@ Sub rangeToMarkDown()
             currentColumnWidth = columnWidth(columnCounter)
             Dim extraSpaces As Integer
 
+
             currentLine = currentLine & " "
-            currentLine = currentLine & cell.Value
+
+            On Error Resume Next
+            linkAddress = vbNullString
+            linkAddress = cell.Hyperlinks(1).Address
+            On Error GoTo 0
+
+            If linkAddress = vbNullString Then
+               currentLine = currentLine & cell.Value
+            Else
+                temp = linkAddress
+                linkAddress = Replace(temp, " ", "%20")
+                currentLine = currentLine & "[" & cell.Value & "]" & "(" & linkAddress & ")"
+            End If
+
             extraSpaces = currentColumnWidth - Len(cell.Value)
 
             For j = 0 To extraSpaces
@@ -101,7 +115,7 @@ Sub rangeToMarkDown()
                 columnCounter = columnCounter + 1
 
             Next j
-    
+
             Debug.Print currentLine
         End If
 
