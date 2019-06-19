@@ -1,4 +1,4 @@
-Sub rangeToMarkDown()
+ Sub rangeToMarkDown()
 
     Dim cell As Range
     Dim selectedRange As Range
@@ -9,6 +9,7 @@ Sub rangeToMarkDown()
     Dim columnCounter As Integer
     Dim totalColumns As Integer
     Dim currentColumnWidth As Integer
+    Dim linkLength As Integer
 
     totalColumns = selectedRange.Columns.Count
 
@@ -29,8 +30,21 @@ Sub rangeToMarkDown()
         columnCounter = 0
 
         For Each cell In Row.Cells
+            
+            On Error Resume Next
+            linkAddress = vbNullString
+            linkAddress = cell.Hyperlinks(1).Address
+            On Error GoTo 0
 
-            currentColumnWidth = Len(cell.Value)
+            If linkAddress = vbNullString Then
+               currentColumnWidth = Len(cell.Value)
+            Else
+                temp = linkAddress
+                linkAddress = Replace(temp, " ", "%20")
+                linkLength = Len("[" & cell.Value & "]" & "(" & linkAddress & ")")
+                currentColumnWidth = linkLength
+            End If
+            
 
             If (currentColumnWidth > columnWidth(columnCounter)) Then
 
@@ -72,13 +86,15 @@ Sub rangeToMarkDown()
 
             If linkAddress = vbNullString Then
                currentLine = currentLine & cell.Value
+               extraSpaces = currentColumnWidth - Len(cell.Value)
             Else
                 temp = linkAddress
                 linkAddress = Replace(temp, " ", "%20")
                 currentLine = currentLine & "[" & cell.Value & "]" & "(" & linkAddress & ")"
+                extraSpaces = currentColumnWidth - Len("[" & cell.Value & "]" & "(" & linkAddress & ")")
             End If
 
-            extraSpaces = currentColumnWidth - Len(cell.Value)
+            
 
             For j = 0 To extraSpaces
 
